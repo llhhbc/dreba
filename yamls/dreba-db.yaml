@@ -1,0 +1,45 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: dreba-db
+  labels:
+    app: dreba-db
+spec:
+  serviceName: dreba-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dreba-db
+    spec:
+      containers:
+      - name: mysql
+        image: dreba/db:1.0.0
+        ports:
+        - name: mysql
+          containerPort: 3306
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - "-c"
+            - mysqladmin ping -h 127.0.0.1 -u root -p${MYSQL_ROOT_PASSWORD}
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - "-c"
+            - MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
+            - mysql -h 127.0.0.1 -u root -e "SELECT 1"
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+      volumes:
+      - name: data
+        hostPath: 
+          path: /opt/data/dreba/db
+          type: DirectoryOrCreate

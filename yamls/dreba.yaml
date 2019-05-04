@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: dreba
+  labels:
+    app: dreba
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dreba
+    spec:
+      containers:
+      - name: dreba
+        image: dreba/dreba:1.0.0
+        ports:
+        - name: dreba
+          containerPort: 9080
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+      - name: web
+        image: dreba/web:1.0.0
+        ports:
+        - name: web
+          containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
